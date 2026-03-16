@@ -1,0 +1,23 @@
+# 🎨 UI Component Kit - Sample File
+
+Thank you for your purchase!
+
+This is a demo placeholder file. In production, replace with the actual digital product.
+
+## What's Included
+
+- 200+ React components
+- Tailwind CSS styling
+- Dark/Light themes
+- TypeScript definitions
+- Full documentation
+
+## Getting Started
+
+1. Extract the ZIP file
+2. Run `npm install`
+3. Import components from `@/components`
+
+## Support
+
+Contact @xri3bot for assistance.
