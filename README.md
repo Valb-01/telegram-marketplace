@@ -1,262 +1,221 @@
-# 🛍 Telegram Digital Marketplace
+# 🌊 𝟩𝗌𝗇𝖺𝗐𝗂 𝖲𝗍𝗈𝗋𝖾
 
-A full-stack digital marketplace as a Telegram Mini App with Stars payments, USDT payments, and automatic digital product delivery.
+A production-ready **Telegram Mini App Digital Marketplace** with real Telegram Stars payments, USDT TRC20 payments, instant file delivery, and a full admin panel.
 
 ---
 
-## 🏗 Project Structure
+## ✨ Features
+
+- **Telegram Stars (XTR)** — real native invoice via Bot API, no mocks
+- **USDT TRC20** — monitored via TronGrid API, auto-detected
+- **Instant file delivery** — bot sends digital files after confirmed payment
+- **Admin panel** — add/edit/delete products, view orders, analytics
+- **Mobile-first UI** — dark Web3 aesthetic, Framer Motion animations
+- **Secure** — payment validated server-side, files never exposed publicly
+
+---
+
+## 🚀 Quick Start
+
+### 1. Prerequisites
+
+- Node.js 18+
+- pnpm 9+
+- PostgreSQL database
+- Telegram Bot Token (from [@BotFather](https://t.me/BotFather))
+
+### 2. Clone & Install
+
+```bash
+git clone <repo>
+cd telegram-marketplace
+cp .env.example .env
+pnpm install
+```
+
+### 3. Configure Environment
+
+Edit `.env`:
+
+```env
+# Required
+TELEGRAM_BOT_TOKEN=your_bot_token
+ADMIN_TELEGRAM_ID=your_telegram_user_id
+DATABASE_URL=postgresql://user:pass@localhost:5432/snawi_store
+JWT_SECRET=your_secret_key_min_32_chars
+
+# USDT (optional but recommended)
+TRONGRID_API_KEY=your_trongrid_key
+USDT_WALLET_ADDRESS=your_tron_wallet_address
+
+# Mini App URL (set after deploying frontend)
+MINI_APP_URL=https://t.me/your_bot/app
+
+# Production only
+TELEGRAM_WEBHOOK_URL=https://yourdomain.com
+NODE_ENV=development
+PORT=3001
+```
+
+### 4. Setup Database
+
+```bash
+pnpm db:push
+```
+
+### 5. Run Development
+
+```bash
+pnpm dev
+```
+
+This starts:
+- **API + Bot** on `http://localhost:3001`
+- **Frontend** on `http://localhost:5173`
+
+---
+
+## 🏗️ Project Structure
 
 ```
 telegram-marketplace/
-├── backend/                  # Node.js + Express API + Telegram Bot
-│   ├── bot/bot.js            # Telegram Bot (commands, payments, delivery)
-│   ├── routes/
-│   │   ├── products.js       # Products CRUD API
-│   │   ├── orders.js         # Orders & payments API
-│   │   └── admin.js          # Admin dashboard API
-│   ├── middleware/auth.js    # Telegram WebApp auth + Admin auth
-│   ├── data/
-│   │   ├── db.json           # JSON database (products, orders, categories)
-│   │   └── db.js             # Database helpers
-│   ├── digital-files/        # Store digital product files here
-│   ├── uploads/              # Payment proof uploads
-│   └── server.js             # Express server entry point
+├── api-server/                 # Express backend + Telegram bot
+│   ├── src/
+│   │   ├── bot/index.ts        # Bot commands + Stars payment handler
+│   │   ├── db/
+│   │   │   ├── schema.ts       # Drizzle ORM schema
+│   │   │   └── index.ts        # DB connection
+│   │   ├── middleware/
+│   │   │   └── auth.ts         # JWT + Telegram WebApp validation
+│   │   ├── routes/
+│   │   │   ├── auth.ts         # POST /api/auth/telegram
+│   │   │   ├── products.ts     # CRUD products
+│   │   │   ├── categories.ts   # CRUD categories
+│   │   │   ├── orders.ts       # Create orders + send invoice
+│   │   │   ├── payments.ts     # USDT payment creation + status
+│   │   │   └── admin.ts        # Analytics + user list
+│   │   ├── services/
+│   │   │   └── usdtService.ts  # TronGrid monitor + payment detection
+│   │   ├── app.ts              # Express setup
+│   │   └── index.ts            # Entry point
 │
-├── frontend/                 # React + Vite + TailwindCSS Mini App
-│   └── src/
-│       ├── pages/
-│       │   ├── HomePage.jsx      # Landing with featured products
-│       │   ├── ShopPage.jsx      # Browse with filters & search
-│       │   ├── ProductPage.jsx   # Product detail
-│       │   ├── CartPage.jsx      # Shopping cart
-│       │   ├── CheckoutPage.jsx  # Stars + USDT checkout flows
-│       │   ├── OrderSuccessPage.jsx
-│       │   └── AdminPage.jsx     # Full admin dashboard
-│       ├── components/
-│       │   ├── ProductCard.jsx   # Product grid card
-│       │   ├── CartDrawer.jsx    # Slide-in cart
-│       │   ├── BottomNav.jsx     # Mobile navigation
-│       │   └── Skeleton.jsx      # Loading skeletons
-│       ├── hooks/
-│       │   └── useTelegram.js    # Telegram WebApp hook
-│       ├── store/
-│       │   └── useStore.js       # Zustand global state
-│       └── lib/
-│           └── api.js            # Axios API client
+├── marketplace/                # React frontend (Telegram Mini App)
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── layout/Layout.tsx
+│   │   │   ├── product/ProductCard.tsx
+│   │   │   └── ui/Skeleton.tsx
+│   │   ├── hooks/
+│   │   │   └── useTelegram.ts  # Telegram WebApp SDK hook
+│   │   ├── lib/
+│   │   │   ├── api.ts          # Axios API client + types
+│   │   │   ├── auth.ts         # Zustand auth store
+│   │   │   └── cart.ts         # Zustand cart store
+│   │   ├── pages/
+│   │   │   ├── HomePage.tsx
+│   │   │   ├── ProductPage.tsx
+│   │   │   ├── CartPage.tsx
+│   │   │   ├── CheckoutPage.tsx
+│   │   │   ├── OrdersPage.tsx
+│   │   │   └── AdminPage.tsx
+│   │   ├── App.tsx
+│   │   └── main.tsx
 │
-└── README.md
+└── packages/
+    └── api-client-react/       # Shared API client package
 ```
-
----
-
-## ⚡ Quick Start
-
-### 1. Install Dependencies
-
-```bash
-# Install root + all packages
-npm install
-npm run install:all
-```
-
-### 2. Configure Environment Variables
-
-**Backend** — copy and edit:
-```bash
-cp .env.example backend/.env
-```
-
-Fill in `backend/.env`:
-```env
-BOT_TOKEN=         # From @BotFather
-ADMIN_ID=          # Your Telegram user ID (from @userinfobot)
-MINI_APP_URL=      # URL where frontend is deployed
-USDT_WALLET_ADDRESS=  # Your TRC20 USDT wallet
-ADMIN_SECRET=      # Strong random secret for admin panel login
-```
-
-**Frontend** — copy and edit:
-```bash
-cp frontend/.env.example frontend/.env
-```
-
-Fill in `frontend/.env`:
-```env
-VITE_ADMIN_ID=     # Same as ADMIN_ID above
-VITE_ADMIN_BOT=xri3bot
-```
-
-### 3. Add Your Digital Products
-
-Place product files in `backend/digital-files/`. Then update `backend/data/db.json` to point to them:
-
-```json
-"digitalFiles": [
-  { "id": "file_001", "filename": "my-product.zip", "path": "./digital-files/my-product.zip" }
-]
-```
-
-### 4. Run Development Servers
-
-```bash
-# Start both backend + frontend
-npm run dev
-
-# Or separately:
-npm run dev:backend   # http://localhost:3001
-npm run dev:frontend  # http://localhost:5173
-```
-
----
-
-## 🤖 Telegram Bot Setup
-
-### 1. Create Bot
-
-1. Message [@BotFather](https://t.me/BotFather) on Telegram
-2. Run `/newbot` and follow steps
-3. Copy the bot token to `BOT_TOKEN` in your `.env`
-
-### 2. Set Up Mini App
-
-1. In @BotFather, run `/newapp` or use `/mybots` → select bot → Bot Settings → Menu Button
-2. Set the Mini App URL to your deployed frontend URL
-3. Enable inline mode if needed
-
-### 3. Configure Bot Commands
-
-Send to @BotFather:
-```
-/setcommands
-```
-Then paste:
-```
-start - Start the marketplace
-shop - Browse products
-support - Get help
-admin - Admin panel (admin only)
-```
-
-### 4. Enable Payments (Stars)
-
-1. In @BotFather: `/mybots` → your bot → Payments
-2. Enable Telegram Stars (no provider token needed for Stars)
-3. Leave `PAYMENT_PROVIDER_TOKEN` empty in `.env` (Stars uses empty string)
 
 ---
 
 ## 💳 Payment Flows
 
-### ⭐ Telegram Stars
+### Telegram Stars (XTR)
 
-1. User clicks "Buy with Stars" in Mini App
-2. Backend creates order → calls `bot.sendInvoice()` with currency `XTR`
-3. Telegram shows native Stars payment dialog
-4. User approves in Telegram → `pre_checkout_query` fires → bot approves
-5. `successful_payment` event fires → bot marks order complete
-6. Bot automatically sends digital file to user
+```
+User clicks "Pay ⭐ Stars"
+  → Frontend creates order (POST /api/orders)
+  → Backend creates order in DB (status: pending)
+  → Bot sends invoice via sendInvoice() with currency: "XTR"
+  → User pays in Telegram
+  → Telegram sends pre_checkout_query → bot approves
+  → Telegram sends successful_payment message
+  → Bot extracts orderId from payload
+  → Bot verifies userId matches order
+  → Bot marks order as paid in DB
+  → Bot sends digital file via sendDocument()
+```
 
-### 💎 USDT (Manual)
+### USDT TRC20
 
-1. User clicks "Pay with USDT"  
-2. Backend creates USDT order → returns wallet address
-3. User sends USDT to displayed address
-4. User uploads transaction hash + optional screenshot
-5. Bot forwards proof to admin with Approve/Reject buttons
-6. Admin clicks Approve → bot delivers product to user
-7. Admin clicks Reject → user is notified
-
----
-
-## 🔐 Admin Panel
-
-Access at: `http://localhost:5173/admin`
-
-**Features:**
-- Dashboard with revenue stats and recent orders
-- Add/Edit/Delete products
-- Manage categories
-- View all orders with status
-- Approve/Reject USDT payments (triggers bot delivery)
-
-**Login:**
-- In development: any secret works (DEV bypass active)
-- In production: use the `ADMIN_SECRET` from your `.env`
-- Or use Telegram auth (admin's Telegram ID matches `ADMIN_ID`)
+```
+User clicks "Pay USDT"
+  → Frontend creates order (POST /api/orders)
+  → Frontend calls POST /api/payments/usdt/create
+  → Backend generates unique amount (with orderId micro-amount)
+  → User sends exact USDT amount to wallet address
+  → Background monitor checks TronGrid every 30s
+  → Transaction detected → order marked paid
+  → Bot sends digital file to user's Telegram
+```
 
 ---
 
-## 🚀 Production Deployment
+## 🔐 Security
 
-### Backend (Railway / Render / VPS)
+- Telegram WebApp `initData` validated using HMAC-SHA256
+- JWT tokens for API authentication (7-day expiry)
+- Digital files stored outside public directory (`uploads/`)
+- Only thumbnails served statically (`/uploads/thumbnails/`)
+- Files delivered only via bot after verified payment
+- One-time delivery (fileDelivered flag prevents duplicates)
+- Admin routes protected by `isAdmin` flag + JWT
+- Rate limiting on all API routes (100 req/15min)
+
+---
+
+## 🤖 Bot Commands
+
+| Command | Action |
+|---------|--------|
+| `/start` | Welcome message with store button |
+| `/shop` | Opens Mini App directly |
+| `/support` | Shows support contact |
+
+---
+
+## 🛠️ Admin Panel
+
+Access at `/admin` in the Mini App (requires ADMIN_TELEGRAM_ID match).
+
+- **Analytics**: Total orders, revenue in Stars & USDT, user counts
+- **Products**: Add/edit/delete with file upload
+- **Categories**: Manage product categories with emoji icons
+- **Orders**: Recent order list with status
+
+---
+
+## 🌐 Production Deployment
+
+### 1. Set webhook
+
+```env
+NODE_ENV=production
+TELEGRAM_WEBHOOK_URL=https://yourdomain.com
+```
+
+The bot auto-sets webhook on startup.
+
+### 2. Build
 
 ```bash
-cd backend
-npm start
+pnpm build
 ```
 
-Set all environment variables in your hosting provider dashboard.
+### 3. Telegram Mini App Setup
 
-For Telegram webhook mode (instead of polling), uncomment webhook setup in `server.js` and configure with:
-```
-https://api.telegram.org/bot<TOKEN>/setWebhook?url=<YOUR_BACKEND_URL>/webhook
-```
-
-### Frontend (Vercel / Netlify / Cloudflare Pages)
-
-```bash
-cd frontend
-npm run build
-# Deploy the dist/ folder
-```
-
-Set `VITE_API_URL` to your backend URL, e.g.:
-```env
-VITE_API_URL=https://your-backend.railway.app/api
-```
-
----
-
-## 📋 Bot Commands Summary
-
-| Command | Description |
-|---------|-------------|
-| `/start` | Welcome message + buttons |
-| `/shop` | Open Mini App shop |
-| `/support` | Support contact info |
-| `/admin` | Admin stats (admin only) |
-
-### Inline Buttons
-
-| Button | Action |
-|--------|--------|
-| 🏠 Main Menu | Show menu inline |
-| 🛍 Browse Products | Open Mini App |
-| 📞 Support | Show support info |
-| ✅ Approve (admin) | Approve USDT order + deliver |
-| ❌ Reject (admin) | Reject USDT order |
-
----
-
-## 🛠 Customization
-
-### Add Products via Admin Panel
-1. Go to `/admin/products`
-2. Click "Add"
-3. Fill form and upload digital file
-4. Product appears in shop immediately
-
-### Add Categories
-1. Go to `/admin/categories`
-2. Choose emoji icon + name
-3. Products can now be assigned to it
-
-### Modify USDT Wallet
-In `backend/.env`:
-```env
-USDT_WALLET_ADDRESS=TYourNewWalletAddressHere
-USDT_NETWORK=TRC20  # or ERC20, BEP20
-```
+In [@BotFather](https://t.me/BotFather):
+1. `/newapp` → set your frontend URL
+2. Set `MINI_APP_URL` to `https://t.me/your_bot/app`
 
 ---
 
@@ -264,31 +223,16 @@ USDT_NETWORK=TRC20  # or ERC20, BEP20
 
 | Layer | Tech |
 |-------|------|
+| Frontend | React 18, Vite, TypeScript, TailwindCSS, Framer Motion |
+| State | TanStack Query, Zustand |
+| Router | Wouter |
+| Backend | Node.js, Express, TypeScript |
 | Bot | node-telegram-bot-api |
-| Backend | Node.js + Express |
-| Database | JSON file (upgrade to MongoDB/PostgreSQL for scale) |
-| Frontend | React 18 + Vite |
-| Styling | TailwindCSS v3 |
-| Animations | Framer Motion |
-| State | Zustand + localStorage |
-| Auth | Telegram WebApp initData HMAC validation |
-
----
-
-## 🔄 Upgrading to a Real Database
-
-Replace `backend/data/db.js` with a real ORM:
-
-```bash
-npm install mongoose  # MongoDB
-# or
-npm install prisma    # PostgreSQL/MySQL
-```
-
-The `readDB()` / `writeDB()` interface makes it easy to swap implementations.
+| Database | PostgreSQL + Drizzle ORM |
+| Payments | Telegram Stars (XTR), USDT TRC20 via TronGrid |
 
 ---
 
 ## 📞 Support
 
-Contact the admin bot: [@xri3bot](https://t.me/xri3bot)
+[@xri3bot](https://t.me/xri3bot)

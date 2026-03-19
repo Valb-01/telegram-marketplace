@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Database
+drizzle/
+
+# Uploads (digital files — never commit)
+api-server/uploads/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# TypeScript
+*.tsbuildinfo
+
+# Vite
+.vite/

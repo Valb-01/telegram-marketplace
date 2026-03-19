@@ -1,0 +1,57 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: snawi
+      POSTGRES_PASSWORD: snawi_secret
+      POSTGRES_DB: snawi_store
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U snawi -d snawi_store']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./api-server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=8685346654:AAH9-hR_Ru5FEdfrIGpD36kRmUfh0NpBWNQ
+      - ADMIN_TELEGRAM_ID=8177426092
+      - USDT_WALLET_ADDRESS=TGeWnL3Uc7CLK8MrLA4tkLdmhNmDJXiEbb
+      - DATABASE_URL=postgresql://snawi:snawi_secret@postgres:5432/snawi_store
+      - JWT_SECRET=snawi7store_ultra_secret_jwt_key_2025_xri3bot
+      - NODE_ENV=production
+      - PORT=3001
+      - MINI_APP_URL=https://t.me/your_bot/app
+    ports:
+      - '3001:3001'
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./marketplace
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ""
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  uploads_data:

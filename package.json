@@ -1,16 +1,15 @@
 {
-  "name": "telegram-digital-marketplace",
-  "version": "1.0.0",
-  "description": "Full-stack Telegram Mini App Digital Marketplace",
+  "name": "7snawi-store",
   "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@9.0.0",
   "scripts": {
-    "install:all": "npm install --prefix backend && npm install --prefix frontend",
-    "dev:backend": "npm run dev --prefix backend",
-    "dev:frontend": "npm run dev --prefix frontend",
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "build:frontend": "npm run build --prefix frontend",
-    "start:backend": "npm start --prefix backend",
-    "start": "npm start --prefix backend"
+    "dev": "concurrently \"pnpm --filter api-server dev\" \"pnpm --filter marketplace dev\"",
+    "build": "pnpm --filter api-server build && pnpm --filter marketplace build",
+    "db:push": "pnpm --filter api-server db:push",
+    "db:generate": "pnpm --filter api-server db:generate",
+    "db:seed": "pnpm --filter api-server db:seed",
+    "db:studio": "pnpm --filter api-server db:studio"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
